@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AJAX</title>
+    <script>
+        function loadXMLDoc() {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange=function () {
+                if(xhr.readyState == 4 && xhr.status == 200) {
+
+                    //通过Ajax响应的东西异步的展示在id为hello的div中
+                    document.getElementById("myDiv").innerHTML=xhr.responseText;
+                }
+            };
+            xhr.open("GET","login",true);
+            xhr.send();
+        }
+    </script>
+</head>
+<body>
+    <div>我的第一个AJAX</div>
+    <button type="button" onclick="loadXMLDoc()">点击</button>
+    <div id="myDiv"></div>
+</body>
+</html>

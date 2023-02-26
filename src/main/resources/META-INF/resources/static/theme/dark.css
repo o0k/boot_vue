@@ -1,0 +1,153 @@
+/****************************************************************/
+/* index 页面*/
+#index {
+    background-color: #3c3f41;
+}
+/** 标题 */
+#index .ms-login {
+    background-color: #1d2124;
+}
+#index .ms-title {
+    color: #aaa3a3;
+}
+/** 输入框 */
+#index .el-input__inner {
+    background-color: #1e2024;
+    color: #e3e6ea;
+    border-color: #7a7e80;
+}
+/** 按钮 */
+#index .el-button {
+    background-color: #2b2b2b;
+    border-color: #7a7e80;
+    color: #edefef;
+}
+
+/****************************************************************/
+/* shell 页面*/
+#shell {
+    background-color: #3c3f41;
+}
+
+/** 滚动大屏 */
+#shell #card-scroll {
+    background-color: #2a2828;
+    border-color: #7a7e80;
+    color: #c0c7c7;
+}
+
+/** 按钮 */
+#shell .el-button {
+    background-color: #3c3f41;
+    border-color: #7a7e80;
+    color: #c4cbcb;
+}
+#shell .el-button--primary {
+    -webkit-text-fill-color: #f6f1f1;
+    color: #FFF;
+    background-color: #41464e;
+    border-color: #7a7e80;
+}
+#shell .el-button:focus, #shell .el-button:hover {
+    color: #c4cbcb;
+    border-color: #7a7e80;
+    background-color: #515d82;
+}
+
+/** 输入框 */
+#shell .el-input.is-disabled {
+    background-color: #3c3f41;
+    border-color: #7a7e80;
+    color: #C0C4CC;
+    cursor: not-allowed;
+}
+#shell .el-input__inner {
+    background-color: #3c3f41;
+    color: #C0C4CC;
+    border-color: #7a7e80;
+}
+#shell .el-input__inner:hover {
+    background-color: #515d82;
+}
+
+/** enter 输入框 */
+#shell #enter-input {
+    background-color: #1e2024;
+    color: #C0C4CC;
+}
+#enter-input::placeholder {
+    color: #b4b8bd;
+}
+
+/** 对话框 */
+#shell .el-dialog {
+    background-color: #312e2e;
+    color: #C0C4CC;
+}
+#shell .el-dialog__title {
+    color: #c0c7c7;
+}
+
+/** 表格 */
+#shell .el-table, #shell .el-table th, #shell .el-table tr {
+    background-color: #423e3e;
+    color: #C0C4CC;
+}
+#shell .el-table tbody tr:hover>td {
+    background-color: #585b5e;
+}
+
+/** 单选框 */
+#shell .el-radio__input.is-checked .el-radio__inner {
+    border-color: #96afc4;
+    background: #5d6c7d;
+}
+#shell .el-radio__input.is-checked+.el-radio__label {
+    color: #afbcc9;
+}
+
+/** 消息框 */
+#shell .el-message-box {
+    background-color: #312e2e;
+    color: #efeeeb;
+}
+#shell .el-message-box__content {
+    color: #afb2bb;
+}
+#shell .el-message-box__status.el-icon-warning {
+    color: #efeeeb;
+}
+#shell .el-message-box__title {
+    color: #efeeeb;
+}
+
+/*
+ * 下拉框
+ */
+#shell .el-scrollbar {
+    background-color: #c6c1b7;
+}
+#shell .el-select-dropdown__item.selected {
+    background-color: #807e7a;
+    color: #0f386a;
+}
+#shell .el-select-dropdown__item.hover {
+    background-color: #4c4941;
+}
+
+/*****************************************************************/
+/** 滚动条全局 */
+#card-scroll::-webkit-scrollbar {
+    width: 6px;
+    background-color: #fff;
+}
+/** 滚动条轨道 */
+#card-scroll::-webkit-scrollbar-track {
+    background-color: #d9d4cf;
+}
+
+/** 滚动条滑块 */
+#card-scroll::-webkit-scrollbar-thumb {
+    background-color: #68626c;
+    border-radius: 6px;
+}

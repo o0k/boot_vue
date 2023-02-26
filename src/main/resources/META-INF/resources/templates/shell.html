@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Power Shell</title>
+
+    <script src="static/utils/dcss.js" type="text/javascript"></script>
+    <link rel="shortcut icon" href="static/plugins/favicon2.ico" type=image/x-icon">
+    <script src="static/plugins/vue.js" type="text/javascript"></script>
+    <script src="static/plugins/element/element-ui.js" type="text/javascript"></script>
+    <link href="static/plugins/element/css/element-ui.css" rel="stylesheet" type="text/css">
+    <script src="static/plugins/axios.js" type="text/javascript"></script>
+    <script src="static/plugins/element/zh-CN.js" type="text/javascript"></script>
+    <script src="static/plugins/mount.js" type="text/javascript"></script>
+    <script src="static/utils/simple.js" type="text/javascript"></script>
+    <script src="static/utils/main.js" type="text/javascript"></script>
+
+</head>
+<body id="shell">
+<div id="app">
+    <div style="margin: 2% 15%;">
+        <el-row :gutter="20">
+            <el-col :span="5">
+                <el-input
+                        v-model="applicationName"
+                        :disabled="true">
+                </el-input>
+            </el-col>
+            <el-col :span="3">
+                <el-button @click="openDiag">应用实例</el-button>
+            </el-col>
+            <el-col :span="3">
+                <el-input
+                        v-model="connect"
+                        :disabled="true">
+                </el-input>
+            </el-col>
+            <el-col :span="5">
+                <el-select v-model="waitMills" clearable placeholder="wait mills, 默认不填" filterable allow-create>
+                    <el-option
+                            v-for="item in millsOpts"
+                            :key="item"
+                            :label="item"
+                            :value="item">
+                    </el-option>
+                </el-select>
+            </el-col>
+            <el-col :span="3">
+                <el-select v-model="encoding" clearable placeholder="请选择编码" filterable allow-create>
+                    <el-option
+                            v-for="item in encodings"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
+            </el-col>
+            <el-col :span="3">
+                <el-select v-model="type" clearable placeholder="请选择类型">
+                    <el-option
+                            v-for="item in types"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                    </el-option>
+                </el-select>
+            </el-col>
+            <el-col :span="1">
+                <el-button icon="el-icon-setting" @click="openSetting"></el-button>
+            </el-col>
+
+            <el-dialog title="应用列表" :visible.sync="appsVisible" width="69%">
+                <el-row :gutter="20">
+                    <el-col :span="8">
+                        <el-input placeholder="应用名称" v-model="appParams.appName" clearable></el-input>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-radio-group v-model="appParams.first" style="line-height: 50px;vertical-align: center">
+                            <el-radio :label="0">全部</el-radio>
+                            <el-radio :label="1">非首选</el-radio>
+                        </el-radio-group>
+                        </el-input>
+                    </el-col>
+                    <el-col :span="6">
+                        <el-button type="primary" @click="searchApps">搜索</el-button>
+                    </el-col>
+                </el-row>
+
+                <el-table :data="appList" @row-dblclick="selectApp">
+                    <el-table-column property="applicationName" label="应用名称" width="120"></el-table-column>
+                    <el-table-column property="hostName" label="主机名称" width="180"></el-table-column>
+                    <el-table-column property="ipv4Address" label="IP" width="140"></el-table-column>
+                    <el-table-column property="macAddress" label="mac" width="180"></el-table-column>
+                    <el-table-column property="registerTime" label="注册时间" width="200"></el-table-column>
+                    <el-table-column property="first" label="应用首选" width="100"></el-table-column>
+                </el-table>
+            </el-dialog>
+
+            <el-dialog :title="'设置 (' + fullName + ')'" :visible.sync="settingVisible">
+                <el-form :inline="true" :model="settingParams" class="demo-form-inline">
+                    <el-row>
+                        <el-form-item label="主题颜色">
+                            <el-select v-model="settingParams.color" placeholder="主题颜色">
+                                <el-option
+                                        v-for="item in colorOptions"
+                                        :key="item.value"
+                                        :label="item.label"
+                                        :value="item.value">
+                                </el-option>
+                            </el-select>
+                        </el-form-item>
+                    </el-row>
+                   <el-row style="text-align: center">
+                       <el-form-item>
+                           <el-button type="primary" @click="apply">应用</el-button>
+                       </el-form-item>
+                   </el-row>
+
+                </el-form>
+            </el-dialog>
+        </el-row>
+
+        <el-row style="height: 80vh">
+            <el-card id="card-scroll">
+                <div v-for="(s,i) in display.getTexts()" :key="i" style="display: inline;">
+<pre class="pre-text">
+{{s}}
+</pre>
+                </div>
+                <div id="clear-content" v-show="blankHeight > 0" :style="{ height: blankHeight + 'px'}"></div>
+            </el-card>
+            <el-input id="enter-input" @keyup.enter.native="onEnter"
+                      placeholder="输入命令后, 按Enter键执行, 上下键切换历史   (可输入 pps --help 获取帮助)"
+                      v-model="cmd">
+            </el-input>
+
+        </el-row>
+
+    </div>
+</div>
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                applicationName: '',
+                appParams: {
+                    appName: '',
+                    first: 0
+                },
+                connect: '未连接',
+                waitMills: '',
+                millsOpts: [1000, 1500, 3000, 6000],
+
+                encoding: 'GBK',
+                encodings: [{
+                    value: 'GBK',
+                    label: 'GBK'
+                }, {
+                    value: 'UTF-8',
+                    label: 'UTF-8'
+                }],
+                type: '1',
+                types: [{
+                    value: '0',
+                    label: '简单'
+                }, {
+                    value: '1',
+                    label: '默认'
+                }],
+
+                appList: [],
+                appsVisible: false,
+
+                r: null,
+                sessionId: '',
+
+                cmdObj: new Command(50),
+                cmd: '',
+                display: new Display(10, 50),
+                shellManager: new ShellManager(),
+
+                blankHeight: 0,
+
+                settingVisible: false,
+                username: '',
+                fullName: '',
+                settingParams: {
+                    color: ''
+                },
+                colorOptions: []
+
+            }
+        },
+        methods: {
+            openDiag() {
+                this.appsVisible = true
+                this.searchApps()
+            },
+            searchApps() {
+                axios({
+                    method: 'post',
+                    url: 'shell/apps',
+                    params: this.appParams
+                }).then(data => {
+                    this.appList = data
+                })
+            },
+            // select
+            selectApp(r) {
+                this.r = r
+                this.applicationName = r.applicationName
+                this.sessionId = r.sessionId
+                this.appsVisible = false
+                this.connect = '未连接'
+                sessionStorage.clear()
+            },
+            // 打开设置
+            openSetting() {
+                this.settingVisible = true
+                this.getColorOpts()
+            },
+            // colorOpts
+            getColorOpts() {
+                axios({
+                    method: 'get',
+                    url: 'shell/colors',
+                }).then((data) => {
+                    this.colorOptions = data
+                });
+            },
+            // 应用设置
+            apply() {
+                axios({
+                    method: 'post',
+                    url: 'shell/setting',
+                    data: this.settingParams
+                }).then(() => {
+                    loadTheme().then(() => dynamicCss())
+                }).then(() => {
+                    this.settingVisible = false
+                })
+            },
+
+            // remote operation
+            remote(cmd) {
+                if (this.sessionId === '') {
+                    this.appendText('应用实例未选择, 请选择应用实例!')
+                    return
+                }
+                const remoteData = {
+                    sessionId: this.sessionId,
+                    charset: this.encoding,
+                    command: cmd,
+                    shellId: this.shellManager.getShellId(this.sessionId),
+                    waitMills: this.waitMills,
+                    type: this.type,
+                }
+                axios({
+                    method: 'post',
+                    url: 'shell/remote',
+                    data: remoteData
+                }).then(data => {
+                    if (data.code === 0) {
+                        this.shellManager.putShellId(this.sessionId, data.shellId)
+                    } else {
+                        // SHELL_ID_INCORRECT || SHELL_EXITED || ...
+                        this.shellManager.removeShellId(this.sessionId)
+                    }
+                    this.appendText(data.result);
+                }).then(() => {
+                    this.connect = typeof this.shellManager.getShellId(this.sessionId) === 'undefined' ? '未连接':'已连接';
+                })
+            },
+            // key enter 触发
+            onEnter() {
+                this.cmdObj.add(this.cmd)
+                this.cmd = trimCmd(this.cmd)
+                const preText = this.username + '<' + moment().format('YYYY-MM-DD HH:mm:ss') + '> '
+
+                let remote = false
+                if (this.cmd === "pps --help") {
+                    this.appendText(preText + this.cmd).then(() => {
+                        this.appendText(this.help())
+                    })
+                } else if (this.cmd === "psc --inf") {
+                    this.appendText(preText + this.cmd).then(() => {
+                        this.appendText(this.pscInf())
+                    })
+                } else if (this.cmd === "clear") {
+                    this.appendText(preText + this.cmd).then(() => this.clear())
+                } else if (this.cmd === "cleanup") {
+                    this.cleanup()
+                } else {
+                    remote = !isBlank(this.cmd)
+                    this.appendText(preText + this.cmd)
+                }
+
+                const cmd = this.cmd
+                this.cmd = ''
+
+                // remote
+                if (remote) {
+                    this.remote(cmd)
+                }
+            },
+            // pps --help
+            help() {
+                return "" +
+                    "-----按键---------------------说明--------------\n" +
+                    "                                              \n" +
+                    "     Esc                  退出账号             \n" +
+                    "     ↑                   切换上条命令          \n" +
+                    "     ↓                   切换下条命令          \n" +
+                    "     Enter                发送命令             \n" +
+                    "                                              \n" +
+                    "------------------------------------------------\n" +
+                    "                                              \n" +
+                    "                                              \n" +
+                    "-----命令---------------------说明--------------\n" +
+                    "                                              \n" +
+                    "   clear                  命令行置顶            \n" +
+                    "   cleanup                清空页面             \n" +
+                    "   cmd                    连接cmd              \n" +
+                    "   /bin/sh                连接sh               \n" +
+                    "   exit                   退出pps              \n" +
+                    "   quit                   简单情况下退出无效应用   \n" +
+                    "   psc --inf              连接客户端信息         \n" +
+                    "                                               \n" +
+                    "------------------------------------------------\n" +
+                    "\n";
+            },
+            // psc --inf
+            pscInf() {
+                if (this.r === null) {
+                    return "" +
+                        "------------------------------------------------\n" +
+                        "          选择应用实例后才可查看对应信息\n" +
+                        "------------------------------------------------\n" +
+                        "\n";
+                }
+                return "" +
+                    "------------------------------------------------\n" +
+                    "   应用名称         " + this.r.applicationName + "\n" +
+                    "   主机名称         " + this.r.hostName + "\n" +
+                    "   IP               " + this.r.ipv4Address + "\n" +
+                    "   mac              " + this.r.macAddress + "\n" +
+                    "   注册时间         " + this.r.registerTime + "\n" +
+                    "   应用首选         " + this.r.first + "\n" +
+                    "------------------------------------------------\n" +
+                    "\n";
+            },
+            // 清空页面
+            cleanup() {
+                this.cmdObj.clear()
+                this.display.clear()
+                this.blankHeight = 0
+            },
+            // 命令行置顶
+            clear() {
+                let vue = this;
+                new Promise(function (resolve) {
+                    // 无元素则不需要 clear
+                    let pres = document.getElementsByClassName(`pre-text`)
+                    if (pres.length > 0) {
+                        // 获取 margin height
+                        let mgH = vue.calMarginBottomHeight(pres[pres.length - 1])
+                        // 添加空白区域
+                        let scroll = document.getElementById('card-scroll')
+                        // 置顶时, 留有 margin-top 和 margin-bottom 的间隔
+                        vue.blankHeight = scroll.offsetHeight - mgH * 2
+
+                        resolve()
+                    }
+                }).then(() => this.focusBottom())
+            },
+            // 添加文本
+            appendText(text) {
+                let vue = this
+                return new Promise(resolve => {
+                    vue.promiseAppend(text).then(() => {
+                        let pres = document.getElementsByClassName('pre-text')
+                        let pre = pres[pres.length - 1]
+                        // 空白高度处理
+                        vue.blankHeight -= pre.offsetHeight
+                        // margin 样式依然需要处理
+                        let marginHeight = vue.calMarginBottomHeight(pre)
+                        vue.blankHeight -= marginHeight;
+                    }).then(() => vue.focusBottom()).then(() => resolve())
+                })
+            },
+            /**
+             * 计算底部 margin 高度值
+             * @param node 元素对象
+             */
+            calMarginBottomHeight(node) {
+                let marginBottom = document.defaultView.getComputedStyle(node).marginBottom;
+                if (marginBottom.endsWith("px")) {
+                    let marginVal = marginBottom.substring(0, marginBottom.length - 2);
+                    return  Number(marginVal);
+                }
+                return 0
+            },
+            // promise 不可直接用 this
+            promiseAppend(text) {
+                let vue = this
+                return new Promise(function (resolve) {
+                    vue.display.add(text);
+                    resolve()
+                })
+            },
+            // 定位到滚动条最底部
+            focusBottom() {
+                let scroll = document.getElementById('card-scroll')
+                scroll.scrollTop = scroll.scrollHeight
+            },
+            keyup(e) {
+                // ↑ 触发 38
+                if (e.keyCode === 38) {
+                    this.cmd = this.cmdObj.getCmd(-1)
+                }
+                // ↓ 键触发 40
+                if (e.keyCode === 40) {
+                    this.cmd = this.cmdObj.getCmd(1)
+                }
+                // Esc 键触发 27
+                if (e.keyCode === 27) {
+                    this.esc()
+                }
+            },
+            esc() {
+                this.$confirm('是否退出 Perfect Power Shell ?', 'Power Shell', {
+                    confirmButtonText: '退出',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios({
+                        method: 'get',
+                        url: 'shell/un_authenticate',
+                    }).then(() => {
+                        localStorage.removeItem('shell-token')
+                        location.href = "index.html"
+                    }, err => {
+                        localStorage.removeItem('shell-token')
+                        location.href = "index.html"
+                        throw new Error(err)
+                    })
+                }).catch(() => {
+                    // do nothing
+                });
+            }
+        },
+        created() {
+            axios({
+                method: 'get',
+                url: 'shell/user',
+            }).then(user => {
+                this.username = user.empNo
+                this.fullName = user.name
+            })
+        },
+        mounted() {
+            // 绑定enter事件
+            document.addEventListener("keyup", this.keyup);
+        },
+        destroyed() {
+            // 销毁enter事件
+            document.removeEventListener("keyup", this.keyup);
+        }
+    })
+</script>
+<style>
+    .el-row {
+        margin-bottom: 10px;
+    }
+
+    .el-col {
+        border-radius: 4px;
+    }
+
+    .bg-purple-dark {
+        background: #99a9bf;
+    }
+
+    .bg-purple {
+        background: #d3dce6;
+    }
+
+    .bg-purple-light {
+        background: #e5e9f2;
+    }
+
+    .grid-content {
+        border-radius: 4px;
+        min-height: 36px;
+    }
+
+    .row-bg {
+        padding: 10px 0;
+        background-color: #f9fafc;
+    }
+
+    #card-scroll {
+        overflow-y: auto;
+        height: 100%;
+        background-color: #fdfdfd;
+        color: #283439;
+        font-size: 14px;
+        font-weight: bold;
+    }
+
+    .pre-text {
+        white-space: pre-wrap; /* css-3 */
+        white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+        white-space: -o-pre-wrap; /* Opera 7 */
+        word-wrap: break-word; /* Internet Explorer 5.5+ */
+    }
+
+    #enter-input {
+        margin-top: 2px;
+        background-color: #f5f7fa;
+        color: #283439;
+        border-color: #ebecee;
+    }
+
+    #enter-input::placeholder {
+        color: #8c939d;
+    }
+
+</style>
+</body>
+</html>

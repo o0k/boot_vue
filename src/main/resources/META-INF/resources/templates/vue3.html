@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vue 快速掌握</title>
+</head>
+<body>
+    <div id="app" class="demo">
+        {{message}}
+        <br>
+        {{something}}
+        <button onclick="hi()">打招呼</button>
+        <button onclick="update()">修改变量</button>
+    </div>
+</body>
+<script src="js/vue3.js"></script>
+<script>
+    let flag = true;
+    const HelloVueApp = {
+        el: '#app',
+        data() {
+            return {
+                something:"something",
+                message:'消息!'
+            }
+        },
+        methods: {
+            sayVueHi: function () {
+                console.log('我是Vue中函数!')
+                hi2()
+            },
+            updateVue() {
+                console.log("另一种方式的定义函数!!!!!!")
+                if (flag) {
+                    this.something = "modify something!11111";
+                    flag = false
+                } else {
+                    this.something = "modify something!22222";
+                    flag = true
+                }
+
+            }
+        }
+    };
+    Vue.createApp(HelloVueApp).mount('#app')
+
+    function hi() {
+        console.log('我是js普通函数, 和vue无关!')
+        HelloVueApp.sayVueHi();
+    }
+
+    function hi2() {
+        console.log('我是js普通函数2, 和vue无关2!')
+    }
+
+    function update() {
+        HelloVueApp.updateVue();
+    }
+</script>
+</html>

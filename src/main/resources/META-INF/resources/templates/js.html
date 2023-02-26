@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <button onclick="zhp3()">zhp</button>
+    <button type="button"
+            onclick="document.getElementById('demo').innerHTML = Date()">
+        点击这里来显示日期和时间
+    </button>
+
+    <p id="demo"></p>
+
+</body>
+<script>
+    function zhp3() {
+        var a = ['1', '2']
+        var b = ['3', '4']
+        var c = a.concat(b)
+        var cc = a + b
+
+        console.log(c)
+    }
+
+    function zhp2() {
+        var v = '1000000000000'
+        var v2 = v.replace(/(?=\B(\d{3})+$)/g, ',')
+        console.log(v2)
+    }
+
+    const user = {
+        name: 'zhp',
+        age: 20,
+        attr: undefined
+    };
+    let nm = 'name'
+
+    function zhp() {
+        // 判读对象是否含有某个属性
+        let flag = nm in user
+        if (flag) {
+            console.log('含有name');
+        } else {
+            console.log('不含有name');
+        }
+        console.log('=========-=======');
+        console.log(user.name)
+        console.log(user.address)
+        console.log(user[nm])
+        console.log(user[name])
+        console.log(user['name'])
+        console.log(Object.keys(user).includes(nm))
+        console.log(Object.keys(user))
+        console.log(user.hasOwnProperty(nm))
+        // 原型链上
+        // console.log(user.toString)
+    }
+</script>
+</html>

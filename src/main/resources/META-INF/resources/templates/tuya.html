@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+    <h4>100</h4>
+    <h4>0</h4>
+    <button>click me add one</button>
+    <script>
+        let elementsByTagNameElement = document.getElementsByTagName("h4")[0];
+        let elementsByTagNameElement1 = document.getElementsByTagName("h4")[1];
+        console.log(elementsByTagNameElement);
+        document.getElementsByTagName("button")[0].onclick = function () {
+            elementsByTagNameElement.innerHTML = parseInt(elementsByTagNameElement.innerHTML) + 1;
+            elementsByTagNameElement1.innerHTML = parseInt(elementsByTagNameElement1.innerHTML) + 1;
+        }
+    </script>
+
+    <table>
+        <tr>
+            <th>Device Name</th>
+            <th>Device ID</th>
+            <th>Device Status</th>
+        </tr>
+        <tr th:each="device : ${devices}">
+            <td th:text="${device.name}"></td>
+            <td th:text="${device.id}"></td>
+            <td th:text="${device.status}"></td>
+        </tr>
+    </table>
+
+</body>
+</html>

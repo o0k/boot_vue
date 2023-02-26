@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+    <!--2.7.14-->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <div id="app">
+        <h4>{{count}}</h4>
+        <h4>{{count1}}</h4>
+        <button v-on: click="addOne">click me add one</button>
+        <table>
+            <tr>
+                <th>Device Name</th>
+                <th>Device ID</th>
+                <th>Device Status</th>
+            </tr>
+            <tr v-for="device in devices">
+                <td>{{device.name}}</td>
+                <td>{{device.id}}</td>
+                <td>{{device.status}}</td>
+            </tr>
+        </table>
+        <p v-if="boo">我是最后一行</p>
+        <p v-if="!boo">我是最后二行</p>
+        <ul>
+            <li v-for="item in items">
+                {{item.message}}
+            </li>
+        </ul>
+        <ul>
+            <li>
+                <span v-if="!course.delete">{{course.name}}</span>
+                <span v-else style="text-decoration: line-through">{{course.name}}</span>
+            </li>
+        </ul>
+    </div>
+    <script>
+        let vue = new Vue({
+                el: '#app',
+                data: {
+                    items: [
+                        {message: 'Foo'},
+                        {message: 'Bar'},
+                        {message: 'mmm'},
+                        {message: 'ZZZ'}
+                    ],
+                    course: {
+                        name: 'java',
+                        delete: true
+                    },
+                    count: 100,
+                    count1: 0,
+                    devices: [
+                        {name: 'device1', id: 'id1', status: 'status1'}
+                        , {name: 'device2', id: 'id2', status: 'status2'}
+                        , {name: 'device3', id: 'id3', status: 'status3'}
+                    ],
+                    boo: false,
+                },
+                methods: {
+                    addOne: function () {
+                        if (this.boo) {
+                            this.boo = false;
+                        } else {
+                            this.boo = true;
+                        }
+                        this.count = this.count + 1;
+                        this.count1 = this.count1 + 2;
+                    }
+                }
+            }
+        );
+    </script>
+
+</body>
+</html>

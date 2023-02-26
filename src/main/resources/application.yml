@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    url: jdbc:mysql://139.159.210.228:3306/neat
+    username: root
+    password: fast@5438
+    driverClassName: com.mysql.jdbc.Driver
