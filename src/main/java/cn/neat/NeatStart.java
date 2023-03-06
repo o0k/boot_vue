@@ -1,5 +1,6 @@
 package cn.neat;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -18,10 +19,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * 11.数据库的主从复制?
  */
 @SpringBootApplication
-public class NeatStart {
+public class NeatStart implements CommandLineRunner {
     public static void main(String[] args) {
-
         SpringApplication.run(NeatStart.class, args);
+        System.out.println("NeatStart");
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
         System.out.println("NeatStart");
     }
 }
